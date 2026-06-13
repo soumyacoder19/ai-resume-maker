@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Maker - Professional</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>AI Resume Maker</h1>
+            </div>
+            
+            <!-- Simplified Navigation & Tools -->
+            <nav class="nav">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <!-- Main Views -->
+                <button class="btn-secondary" onclick="showSection('builder')">
+                    <i class="fas fa-file-alt"></i> Builder
+                </button>
+                <button class="btn-secondary" onclick="showSection('aiTools')">
+                    <i class="fas fa-wand-magic-sparkles"></i> AI Tools
+                </button>
+                
+                <!-- Template Dropdown -->
+                <div class="header-dropdown">
+                    <select id="templateSelector" onchange="selectTemplate(this.value)" class="form-input template-select">
+                        <option value="modern">Modern Template</option>
+                        <option value="professional">Professional Template</option>
+                        <option value="creative">Creative Template</option>
+                    </select>
+                </div>
+
+                <!-- Live Score -->
+                <div class="header-score" title="Resume Quality Score">
+                    <i class="fas fa-chart-pie"></i> <span id="scoreValueHeader">--</span>/100
+                </div>
+
+                <!-- Download -->
+                <button class="btn-primary" onclick="generatePDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+                
+                <!-- Data Management -->
+                <button class="btn-secondary" onclick="exportData()" title="Export Resume Data">
+                    <i class="fas fa-file-export"></i>
+                </button>
+                <button class="btn-secondary" onclick="document.getElementById('importFile').click()" title="Import Resume Data">
+                    <i class="fas fa-file-import"></i>
+                </button>
+                <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
+                <button class="btn-remove" onclick="clearData()" title="Clear All Data" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">
+                    <i class="fas fa-trash"></i>
+                </button>
+                
+                <div class="save-indicator hidden" id="saveIndicator">
+                    <i class="fas fa-check-circle"></i> Saved
+                </div>
+            </nav>
+        </header>
+
+        <div class="content-wrapper">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar Removed -->
+
+            <!-- Editor Section -->
+            <section class="editor" id="builderSection">
+                <div class="editor-content">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-user"></i> Personal Information</h2>
+                        <div class="form-grid">
+                            <input type="text" id="fullName" placeholder="Full Name" class="form-input" oninput="updatePreview()">
+                            <input type="email" id="email" placeholder="Email" class="form-input" oninput="updatePreview()">
+                            <input type="tel" id="phone" placeholder="Phone" class="form-input" oninput="updatePreview()">
+                            <input type="text" id="location" placeholder="Location" class="form-input" oninput="updatePreview()">
+                            <input type="text" id="linkedin" placeholder="LinkedIn URL" class="form-input full-width" oninput="updatePreview()">
+                            <input type="text" id="website" placeholder="Website/Portfolio" class="form-input full-width" oninput="updatePreview()">
+                        </div>
+                    </div>
+
+                    <!-- Professional Summary -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-align-left"></i> Professional Summary</h2>
+                            <button class="btn-ai" onclick="generateSummary()">
+                                <i class="fas fa-wand-magic-sparkles"></i> AI Generate
+                            </button>
+                        </div>
+                        <textarea id="summary" placeholder="Write a compelling professional summary..." 
+                                  class="form-textarea" rows="4" oninput="updatePreview()"></textarea>
+                    </div>
+
+                    <!-- Work Experience -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-briefcase"></i> Work Experience</h2>
+                            <button class="btn-add" onclick="addExperience()">
+                                <i class="fas fa-plus"></i> Add Experience
+                            </button>
+                        </div>
+                        <div id="experienceContainer"></div>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+                            <button class="btn-add" onclick="addEducation()">
+                                <i class="fas fa-plus"></i> Add Education
+                            </button>
+                        </div>
+                        <div id="educationContainer"></div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-star"></i> Skills</h2>
+                            <button class="btn-ai" onclick="suggestSkills()">
+                                <i class="fas fa-lightbulb"></i> AI Suggest
+                            </button>
+                        </div>
+                        <div class="skills-input-container">
+                            <input type="text" id="skillInput" placeholder="Type a skill and press Enter" 
+                                   class="form-input" onkeypress="addSkillOnEnter(event)">
+                            <button onclick="addSkill()" class="btn-add-skill">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="skillsContainer" class="skills-container"></div>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-certificate"></i> Certifications</h2>
+                            <button class="btn-add" onclick="addCertification()">
+                                <i class="fas fa-plus"></i> Add Certification
+                            </button>
+                        </div>
+                        <div id="certificationsContainer"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Consolidated AI Tools Dashboard -->
+            <section class="tools-dashboard hidden" id="aiToolsSection">
+                <div class="tools-content">
+                    <h2 class="tools-header-title"><i class="fas fa-toolbox"></i> AI Tools Dashboard</h2>
+                    
+                    <div class="tools-grid">
+                        
+                        <!-- Optimizer Tool -->
+                        <div class="tool-panel glass-card">
+                            <h3><i class="fas fa-chart-line"></i> ATS & Job Optimizer</h3>
+                            <p class="help-text">Analyze compatibility and match keywords from job descriptions.</p>
+                            
+                            <div class="ats-score" id="atsScore">
+                                <div class="score-display">--</div>
+                                <p>ATS Score</p>
+                            </div>
+                            <button class="btn-primary full-width mb-1" onclick="analyzeATS()">
+                                <i class="fas fa-search"></i> Analyze ATS Score
+                            </button>
+                            <div id="atsResults" class="analysis-results"></div>
+
+                            <hr class="divider">
+
+                            <h4>Match Job Description</h4>
+                            <textarea id="jobDescription" placeholder="Paste the job description here..." 
+                                      class="form-textarea mb-1" rows="4"></textarea>
+                            <div class="button-group">
+                                <button class="btn-primary" onclick="matchJobDescription()">
+                                    <i class="fas fa-bullseye"></i> Match Keywords
+                                </button>
+                                <button class="btn-ai" onclick="tailorResume()">
+                                    <i class="fas fa-magic"></i> Auto-Tailor
+                                </button>
+                            </div>
+                            <div id="matchResults" class="analysis-results"></div>
+                            <div id="tailorResults" class="analysis-results"></div>
+                        </div>
+
+                        <!-- Review & Analytics Tool -->
+                        <div class="tool-panel glass-card">
+                            <h3><i class="fas fa-search"></i> Resume Review & Analytics</h3>
+                            <p class="help-text">Get comprehensive AI feedback on quality and readiness.</p>
+                            
+                            <button class="btn-primary full-width mb-1" onclick="reviewResume()">
+                                <i class="fas fa-robot"></i> Get AI Review
+                            </button>
+                            <div id="reviewResults" class="review-results"></div>
+
+                            <hr class="divider">
+
+                            <h4>Interview Preparation</h4>
+                            <button class="btn-secondary full-width" onclick="getInterviewQuestions()">
+                                <i class="fas fa-lightbulb"></i> Generate Questions
+                            </button>
+                            <div id="interviewQuestions"></div>
+                        </div>
+
+                        <!-- Cover Letter Generator -->
+                        <div class="tool-panel glass-card full-span">
+                            <h3><i class="fas fa-envelope"></i> Cover Letter Generator</h3>
+                            <p class="help-text">Create a tailored cover letter for your target position.</p>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Company Name</label>
+                                    <input type="text" id="coverCompany" placeholder="e.g., Google" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Position</label>
+                                    <input type="text" id="coverPosition" placeholder="e.g., Senior Engineer" class="form-input">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Job Description (Optional)</label>
+                                    <textarea id="coverJobDesc" placeholder="Paste job description..." class="form-textarea" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <button class="btn-primary" onclick="generateCoverLetter()">
+                                <i class="fas fa-magic"></i> Generate Cover Letter
+                            </button>
+                            <div id="coverLetterResult" class="cover-letter-result"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Preview Panel -->
+        <aside class="preview-panel">
+            <div class="preview-header">
+                <h3><i class="fas fa-eye"></i> Live Preview</h3>
+                <button class="btn-icon" onclick="togglePreview()">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <div class="resume-preview" id="resumePreview">
+                    <p class="preview-placeholder">Start filling out your information to see a live preview</p>
+                </div>
+        </aside>
+        </div>
+        <button class="mobile-preview-fab" onclick="togglePreview()" title="Preview Resume">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+
+    <!-- Chatbot UI -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header" onclick="toggleChatbot()">
+            <h3><i class="fas fa-robot"></i> Resume Assistant</h3>
+            <i class="fas fa-chevron-down" id="chatbotToggleIcon"></i>
+        </div>
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chat-message bot">
+                <p>Hi! I'm your AI Resume Assistant. How can I help you today?</p>
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="handleChatKeyPress(event)">
+            <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Modal for AI Suggestions -->
+    <div id="aiModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">AI Suggestions</h2>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" id="modalApplyBtn">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Processing with AI...</p>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
